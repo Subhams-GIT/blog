@@ -1,0 +1,14 @@
+.button{
+    background-color: rgb(0, 0, 0);
+    color:white;
+    border:2px solid grey;
+    border-radius: 5px;
+    align-self: center;
+}
+.container{
+    height:100vh;
+    width:100vw;
+    display:flex;
+    align-items: center;
+    justify-content: center;
+}
