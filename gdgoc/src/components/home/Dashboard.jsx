@@ -10,6 +10,7 @@ import Slider from "react-slick";
 import { motion } from "framer-motion";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
+import TeamPage from "./Team";
 
 const carouselItems = [
   {
@@ -65,7 +66,7 @@ function Dashboard() {
   };
 
   return (
-    <Box d="flex" justifyContent="center" alignItems="center">
+    <Box display="flex" justifyContent="center" alignItems="center">
       <Box
         width={["100vw", null, null, "70vw"]}
         display="flex"
@@ -101,14 +102,14 @@ function Dashboard() {
 
                 <Button
                   as={Link}
-                  to="/write"
+                  to="/suggested-articles"
                   colorScheme="blue"
                   isFullWidth
                   py="8"
                   mt="6"
                   fontSize="xl"
                 >
-                  Start writing
+                 Discover More
                 </Button>
               </Box>
               <Box px="8" d="flex" justifyContent="center" alignItems="center">
@@ -136,7 +137,7 @@ function Dashboard() {
             </Slider>
           </motion.div>
         </Box>
-
+        <TeamPage/>
         <Footer />
       </Box>
     </Box>

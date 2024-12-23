@@ -75,8 +75,8 @@ function ViewArticle() {
   return (
     <Box d="flex" justifyContent="center" alignItems="center">
       <Box
-        w={["100vw", null, null, "70vw"]}
-        d="flex"
+        width={["100vw", null, null, "70vw"]}
+        display="flex"
         justifyContent="center"
         flexDirection="column"
       >
@@ -92,7 +92,7 @@ function ViewArticle() {
                   {el.content.subtitle}
                 </Text>
 
-                <Box d="flex" mt="6" flexDirection={["column", null, "row"]}>
+                <Box display="flex" mt="6" flexDirection={["column", null, "row"]}>
                   <Text color="blue.500" fontSize={["lg", "xl"]} mr="4">
                     {el.authorUsername}
                   </Text>
@@ -104,7 +104,7 @@ function ViewArticle() {
                     ""
                   ) : (
                     <Box
-                      d="flex"
+                      display="flex"
                       flexDirection="row"
                       alignItems="center"
                       mt={[2, null, 0]}
@@ -140,7 +140,7 @@ function ViewArticle() {
                   ""
                 ) : (
                   <>
-                    <Box d="flex">
+                    <Box display="flex">
                       {/* <Spacer d={["none", null, "block"]} /> */}
                       <Button
                         rightIcon={<StarIcon />}

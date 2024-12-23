@@ -4,12 +4,10 @@ import {
   Flex,
   Text,
   Spacer,
-  Menu,
-  MenuItem,
   IconButton,
   Button,
 } from "@chakra-ui/react";
-import { MenuButton,MenuGroup,MenuDivider,MenuList } from "@chakra-ui/menu";
+import { Menu,MenuButton,MenuList, MenuItem, MenuGroup, MenuDivider } from "@chakra-ui/menu";
 import { HamburgerIcon, ChevronDownIcon } from "@chakra-ui/icons";
 import { useToast } from "@chakra-ui/toast";
 import ToggleTheme from "../../theme/ToggleTheme";
@@ -22,7 +20,7 @@ function Nav() {
   const navigate = useNavigate();
   const { currentUser, logout } = useAuth();
 
-  // Handle window resizing
+  
   useEffect(() => {
     const handleResize = () => setWidth(window.innerWidth);
     window.addEventListener("resize", handleResize);
@@ -79,7 +77,7 @@ function Nav() {
                 />
               )}
               <MenuList>
-                <MenuGroup title="Actions">
+                <MenuGroup >
                   <MenuItem as={Link} to="/write">
                     Write article
                   </MenuItem>

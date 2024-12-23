@@ -154,7 +154,7 @@ const Comments = () => {
         <Box mt="6">
           <Box d="flex" mb="1" justifyContent="center" alignItems="center">
             <Text color="blue.500" fontSize={["md", "lg"]} mr="2">
-              {el.autherUsername}
+              {el.authorUsername}
             </Text>
             <Text opacity="0.5" fontSize={["md", "lg"]}>
               {getDate(el.when).slice(4, 21)}

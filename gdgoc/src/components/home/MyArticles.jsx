@@ -2,27 +2,18 @@ import React, { useState, useEffect } from "react";
 import {
   Box,
   Text,
-  IconButton,
-  Spacer,
   Button,
   Badge,
-  Select,
 } from "@chakra-ui/react";
-import { useToast } from "@chakra-ui/toast";
+import { Select } from "@chakra-ui/select";
 import { Divider } from "@chakra-ui/layout";
-import {
-  StarIcon,
-  DeleteIcon,
-  EditIcon,
-  LockIcon,
-  UnlockIcon,
-} from "@chakra-ui/icons";
+import { StarIcon, DeleteIcon, EditIcon, LockIcon } from "@chakra-ui/icons";
+import { useToast } from "@chakra-ui/toast";
 import Nav from "../layout/Nav";
 import LoadingSmall from "../layout/LoadingSmall";
-
 import { useFirebase } from "../../contexts/FirebaseContext";
-
 import { Link } from "react-router-dom";
+import { format } from "date-fns";
 
 function MyArticles() {
   const { getMyArticles, deleteArticle } = useFirebase();
@@ -30,207 +21,116 @@ function MyArticles() {
   const [docIDs, setDocIDs] = useState([]);
   const [loading, setLoading] = useState(false);
   const [selectValue, setSelectValue] = useState("all");
-  const [filteredArticles, setFilteredArticles] = useState([]);
+  const [deletingIDs, setDeletingIDs] = useState([]);
+  const [error, setError] = useState(null);
 
   const toast = useToast();
 
   const fetchArticles = async () => {
+    setLoading(true);
+    setError(null);
     try {
-      setLoading(true);
       const data = await getMyArticles();
       setArticles(data.docs.map((el) => el.data()));
-      setFilteredArticles(data.docs.map((el) => el.data()));
       setDocIDs(data.docs.map((el) => el.id));
     } catch (err) {
-      console.log(err);
+      console.error(err);
+      setError("Failed to load articles. Please try again later.");
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
-  useEffect(fetchArticles, []);
+  useEffect(() => {
+    fetchArticles();
+  }, []);
 
-  const handleDelete = async (docID, i) => {
+  const handleDelete = async (docID) => {
+    setDeletingIDs((prev) => [...prev, docID]);
     try {
       await deleteArticle(docID);
-      toast({
-        title: "Article deleted successfully",
-        status: "success",
-        duration: 5000,
-      });
+      toast({ title: "Article deleted.", status: "success", duration: 5000 });
       fetchArticles();
     } catch (err) {
-      console.log(err);
-      toast({
-        title: "Failed to delete article",
-        status: "error",
-        duration: 5000,
-      });
+      console.error(err);
+      toast({ title: "Failed to delete article.", status: "error", duration: 5000 });
+    } finally {
+      setDeletingIDs((prev) => prev.filter((id) => id !== docID));
     }
   };
 
-  const handleSelectChange = (e) => {
-    const value = e.target.value;
-    setSelectValue(value);
-    if (value === "all") {
-      setFilteredArticles(articles);
-    } else
-      setFilteredArticles(articles.filter((el) => el.visibility === value));
+  const renderVisibilityBadge = (visibility) => {
+    const isPrivate = visibility === "private";
+    const badgeText = isPrivate ? "Private" : "Public";
+    const badgeColor = isPrivate ? "blue" : "green";
+    return (
+      <Badge variant="solid" fontSize="sm" colorScheme={badgeColor} mb="2">
+        {badgeText} {isPrivate && <LockIcon ml="1" />}
+      </Badge>
+    );
   };
 
-  const getDate = (timestamp) => {
-    const d = new Date(timestamp);
-    return d.toString();
-  };
+  const filteredArticles = selectValue === "all"
+    ? articles
+    : articles.filter((el) => el.visibility === selectValue);
 
   return (
-    <Box d="flex" justifyContent="center" alignItems="center">
-      <Box
-        w={["100vw", null, null, "70vw"]}
-        d="flex"
-        justifyContent="center"
-        flexDirection="column"
-      >
+    <Box display="flex" justifyContent="center" alignItems="center">
+      <Box width={["100vw", null, null, "70vw"]} flexDirection="column">
         <Nav />
         {loading ? (
           <LoadingSmall />
         ) : (
-          <Box mx={["6", "10"]}>
-            <Text fontSize={["2xl", "3xl"]}>Articles you have written</Text>
-
-            <Box d="flex" justifyContent="center" alignItems="center">
-              <Spacer />
-
-              <Select
-                // placeholder="Choose article visibility"
-                w={["100%", null, "320px"]}
-                mt="8"
-                onChange={(e) => handleSelectChange(e)}
-                value={selectValue}
-              >
-                <option value="all">All articles</option>
-                <option value="public">Public articles</option>
-                <option value="private">Private articles</option>
-              </Select>
-            </Box>
-
-            <Box
-              mt="6"
-              mb="10"
-              d="flex"
-              justifyContent="center"
-              flexDirection="column"
-            >
-              {filteredArticles.map((el, i) => {
-                return (
-                  <>
-                    <Box
-                      d="flex"
-                      justifyContent="center"
-                      flexDirection="column"
-                      alignItems="flex-start"
-                      as={Link}
-                      to={`/article/${el.articleID}`}
-
-                      // boxShadow="md"
-                      // p={[6, 8]}
-                      //   mb={[4, 6]}
-                      // rounded="lg"
-                    >
-                      {el.visibility === "private" ? (
-                        <Badge
-                          variant="solid"
-                          fontSize={["sm", "sm"]}
-                          colorScheme="blue"
-                          mb="2"
-                        >
-                          Private {<LockIcon mb="1" ml="1" />}
-                        </Badge>
-                      ) : (
-                        <Badge
-                          variant="solid"
-                          fontSize={["sm", "sm"]}
-                          colorScheme="green"
-                          mb="2"
-                        >
-                          Public
-                        </Badge>
-                      )}
-                      <Text fontSize={["xl", "2xl"]}>{el.content.title}</Text>
-                      <Text fontSize={["lg", "xl"]} opacity="0.5">
-                        {el.content.subtitle}
-                      </Text>
-                      <Box d="flex" mt="4">
-                        {el.visibility === "private" ? (
-                          ""
-                        ) : (
-                          <>
-                            <Box
-                              d="flex"
-                              flexDirection="row"
-                              alignItems="center"
-                              mr="2"
-                              // mt={[2, null, 0]}
-                            >
-                              <Text
-                                fontWeight="semibold"
-                                color="yellow.500"
-                                fontSize={["md", "lg"]}
-                              >
-                                {el.stars}
-                              </Text>
-                              <StarIcon
-                                color="yellow.500"
-                                fontSize={["md", "lg"]}
-                                ml="2"
-                              />
-                            </Box>
-                          </>
-                        )}
-                        <Text fontSize={["md", "lg"]} mr="2" color="blue.500">
-                          {el.authorUsername}
-                        </Text>
-                        <Text
-                          fontSize={["md", "lg"]}
-                          opacity="0.6"
-                          fontWeight="light"
-                        >
-                          {getDate(el.when).slice(4, 21)}
-                        </Text>
-                      </Box>
-                    </Box>
-                    <Box d="flex">
-                      <Spacer d={["none", null, "block"]} />
-                      {/* {setBtnLoading([...btnLoading, false])} */}
-
-                      <Button
-                        mt="4"
-                        mr="2"
-                        variant="outline"
-                        as={Link}
-                        rightIcon={<EditIcon />}
-                        colorScheme="blue"
-                        to={`/edit-article/${el.articleID}`}
-                      >
-                        Edit
-                      </Button>
-
-                      <Button
-                        mt="4"
-                        rightIcon={<DeleteIcon />}
-                        colorScheme="red"
-                        variant="outline"
-                        onClick={() => {
-                          handleDelete(docIDs[i], i);
-                        }}
-                      >
-                        Delete
-                      </Button>
-                    </Box>
-                    <Divider my="6" />
-                  </>
-                );
-              })}
-            </Box>
+          <Box mx="6">
+            <Text fontSize="3xl" mb="4">Articles You Have Written</Text>
+            {error && <Text color="red.500" mb="4">{error}</Text>}
+            <Select value={selectValue} onChange={(e) => setSelectValue(e.target.value)} mb="6">
+              <option value="all">All</option>
+              <option value="public">Public</option>
+              <option value="private">Private</option>
+            </Select>
+            {!loading && !filteredArticles.length && (
+              <Text textAlign="center" mt="6">No articles found. Write your first one!</Text>
+            )}
+            {filteredArticles.map((el, i) => (
+              <Box key={docIDs[i]} as={Link} to={`/article/${el.articleID}`} mb="6">
+                {renderVisibilityBadge(el.visibility)}
+                <Text fontSize="2xl">{el.content?.title || "Untitled Article"}</Text>
+                <Text opacity="0.6">{el.content?.subtitle || "No subtitle provided."}</Text>
+                <Box mt="4">
+                  {el.visibility !== "private" && (
+                    <Text fontWeight="semibold" color="yellow.500">
+                      {el.stars} <StarIcon color="yellow.500" />
+                    </Text>
+                  )}
+                  <Text>{el.authorUsername}</Text>
+                  <Text>{el.when ? format(new Date(el.when), "MMMM dd, yyyy") : "Date not available"}</Text>
+                </Box>
+                <Box mt="4" display="flex" gap="4">
+                  <Button
+                    as={Link}
+                    to={`/edit-article/${el.articleID}`}
+                    variant="outline"
+                    rightIcon={<EditIcon />}
+                    aria-label="Edit article"
+                  >
+                    Edit
+                  </Button>
+                  <Button
+                    onClick={(e) => {
+                      e.preventDefault();
+                      handleDelete(docIDs[i]);
+                    }}
+                    isLoading={deletingIDs.includes(docIDs[i])}
+                    colorScheme="red"
+                    rightIcon={<DeleteIcon />}
+                  >
+                    Delete
+                  </Button>
+                </Box>
+                <Divider my="4" />
+              </Box>
+            ))}
           </Box>
         )}
       </Box>

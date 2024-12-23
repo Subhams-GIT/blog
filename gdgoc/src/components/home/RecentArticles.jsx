@@ -2,34 +2,37 @@ import React, { useState, useEffect } from "react";
 import {
   Box,
   Text,
-  Divider,
-  Input,
-  InputGroup,
-  InputLeftElement,
 } from "@chakra-ui/react";
 import { StarIcon, SearchIcon } from "@chakra-ui/icons";
+import { Input, InputAddon, InputGroup, InputLeftElement } from "@chakra-ui/input";
 import LoadingSmall from "../layout/LoadingSmall";
-
+import { Divider } from "@chakra-ui/layout";
 import { useFirebase } from "../../contexts/FirebaseContext";
-
+import { useAuth } from "../../contexts/AuthContext";
 import { Link } from "react-router-dom";
 
 function SuggestedArticles() {
+  const { currentUser } = useAuth();
   const { getAllPublicArticles } = useFirebase();
   const [articles, setArticles] = useState([]);
   const [filteredArticles, setFilteredArticles] = useState([]);
   const [loading, setLoading] = useState(false);
-
-  useEffect(async () => {
-    try {
-      setLoading(true);
-      const data = await getAllPublicArticles();
-      setArticles(data.docs.map((el) => el.data()));
-      setFilteredArticles(data.docs.map((el) => el.data()));
-    } catch (err) {
-      console.log(err);
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        setLoading(true);
+        const data = await getAllPublicArticles();
+        setArticles(data.docs.map((el) => el.data()));
+        const filteredArticles = data.docs
+          .filter(e => e.data().authorID !== currentUser.uid)
+          .map(e => e.data());
+        setFilteredArticles(filteredArticles);
+      } catch (err) {
+        console.log(err);
+      }
+      setLoading(false);
     }
-    setLoading(false);
+    fetchData();
   }, []);
 
   const getDate = (timestamp) => {
@@ -50,21 +53,27 @@ function SuggestedArticles() {
   };
 
   return (
-    <Box mx={["6", "10"]}>
-      <Text fontSize={["2xl", "3xl"]}>Recently posted articles</Text>
+    <Box mx={["4", "8", "12", "16"]} maxW="1200px" m="auto">
+      <Text fontSize={["xl", "2xl", "3xl"]} fontWeight="bold" mb={4}>
+        Recently Posted Articles
+      </Text>
 
-      <Box my={[4, null, null, 8]}>
-        <InputGroup>
-          <InputLeftElement
-            pointerEvents="none"
-            children={<SearchIcon color="gray.400" />}
-            mt="4px"
-            ml="4px"
-          />
+      <Box my={[4, 7, 8]}>
+
+        <InputGroup padding={5}
+          borderRadius="md"
+          borderWidth="1px"
+          borderColor="gray.300"
+          bg="white"
+          _hover={{ borderColor: "gray.400" }}
+          _focus={{ borderColor: "blue.400" }}>
+
           <Input
             type="text"
             placeholder="Search for articles"
-            height={"48px"}
+            height="48px"
+            width={["100%", "100%", "100%", "100%"]}
+            borderRadius="md"
             onChange={(e) => handleSearch(e)}
           />
         </InputGroup>
@@ -74,60 +83,58 @@ function SuggestedArticles() {
         <LoadingSmall />
       ) : (
         <Box
-          mt="10"
-          mb={[0, 0, 4]}
-          d="flex"
-          justifyContent="center"
+          display="flex"
           flexDirection="column"
+          mt="8"
+          gap={[4, 6]}
+          px={[2, 4]}
         >
           {filteredArticles.length === 0 ? (
-            <Text fontSize="xl" textAlign="center">
+            <Text fontSize="lg" textAlign="center">
               No articles found
             </Text>
           ) : null}
           {filteredArticles.map((el) => (
             <Box
-              d="flex"
-              justifyContent="center"
-              flexDirection="column"
-              alignItems="flex-start"
               as={Link}
               to={`/article/${el.articleID}`}
-              // boxShadow="md"
-              // p={[6, 8]}
-              // mb={[4, 6]}
-              // rounded="lg"
+              display="flex"
+              flexDirection="column"
+              p={[4, 6]}
+              borderWidth="1px"
+              borderRadius="md"
+              shadow="sm"
+              transition="all 0.2s"
+              _hover={{ shadow: "lg", bg: "gray.50" }}
+              key={el.articleID}
             >
-              <Text fontSize={["xl", "2xl"]}>{el.content.title}</Text>
-              <Text fontSize={["lg", "xl"]} opacity="0.8">
+              <Text fontSize={["sm", "md"]} color="blue.500">
+                {el.authorUsername}
+              </Text>
+              <Text fontSize={["sm", "md"]} color="gray.500">
+                {getDate(el.when).slice(4, 21)}
+              </Text>
+              <Text fontSize={["lg", "xl", "2xl"]} fontWeight="semibold">
+                {el.content.title}
+              </Text>
+              <Text fontSize={["sm", "md", "lg"]} color="gray.600" mt={1}>
                 {el.content.subtitle}
               </Text>
-              <Box d="flex" mt="4">
-                <Box
-                  d="flex"
-                  flexDirection="row"
-                  alignItems="center"
-                  mr="2"
-                  // mt={[2, null, 0]}
-                >
+              <Box mt={4} display="flex" flexWrap="wrap" alignItems="center" gap={4}>
+                <Box display="flex" alignItems="center">
                   <Text
-                    fontWeight="semibold"
+                    fontSize={["sm", "md"]}
                     color="yellow.500"
-                    fontSize={["md", "lg"]}
+                    fontWeight="bold"
+                    mr={1}
                   >
                     {el.stars}
                   </Text>
-                  <StarIcon color="yellow.500" fontSize={["md", "lg"]} ml="2" />
+                  <StarIcon color="yellow.500" />
                 </Box>
-                <Text fontSize={["md", "lg"]} mr="2" color="blue.500">
-                  {el.authorUsername}
-                </Text>
-                <Text fontSize={["md", "lg"]} opacity="0.6" fontWeight="light">
-                  {getDate(el.when).slice(4, 21)}
-                </Text>
-              </Box>
 
-              <Divider my="6" />
+              </Box>
+              <Divider my={4} />
             </Box>
           ))}
         </Box>

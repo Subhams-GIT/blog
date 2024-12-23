@@ -3,13 +3,13 @@ import "firebase/compat/auth";
 import "firebase/compat/firestore";
 
 const app = firebase.initializeApp({
-  apiKey: "AIzaSyDf2HpdHPtoI0zN613qv4wUJp7X8WyrBW4",
-  authDomain: "gdgsu-oc.firebaseapp.com",
-  projectId: "gdgsu-oc",
-  storageBucket: "gdgsu-oc.firebasestorage.app",
-  messagingSenderId: "192844766746",  
-  appId: "1:192844766746:web:1fe000072355791719fba3",
-  measurementId: "G-6CJL5XB11X"
+  apiKey: "AIzaSyBEiIKrS7Raxv-73DyTjv_7xHkPKCyTKoo",
+  authDomain: "gssoc-issue-solve.firebaseapp.com",
+  databaseURL: "https://gssoc-issue-solve-default-rtdb.firebaseio.com",
+  projectId: "gssoc-issue-solve",
+  storageBucket: "gssoc-issue-solve.firebasestorage.app",
+  messagingSenderId: "897320160719",
+  appId: "1:897320160719:web:7cb31eed6e903af62bd6ba"
 });
 
 export const database = firebase.firestore();

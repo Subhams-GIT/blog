@@ -4,13 +4,14 @@ import {
   Text,
   Textarea,
   Button,
-  Stack,
 } from "@chakra-ui/react";
-import { RadioGroup } from "@chakra-ui/react";
+import { Stack } from "@chakra-ui/react";
+import { RadioGroup } from "@chakra-ui/radio";
+import { Radio } from "@chakra-ui/radio";
 import { Divider } from "@chakra-ui/layout";
 import { useToast } from "@chakra-ui/toast";
 import Nav from "../layout/Nav";
-import { Link ,useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 import { useFirebase } from "../../contexts/FirebaseContext";
 
@@ -39,7 +40,7 @@ function WriteArticle() {
 
     try {
       setLoading(true);
-      await postArticle({
+      const result = await postArticle({
         articleID: uuidv4(),
         authorID: currentUser.uid,
         authorEmail: currentUser.email,
@@ -53,6 +54,7 @@ function WriteArticle() {
         stars: 0,
         visibility: visibility,
       });
+      console.log(result)
 
       toast({
         title: "Article posted",
@@ -74,12 +76,13 @@ function WriteArticle() {
   };
 
   return (
-    <Box d="flex" justifyContent="center" alignItems="center">
+    <Box display="flex" justifyContent="center" alignItems="center">
       <Box
-        w={["100vw", null, null, "70vw"]}
-        d="flex"
+        width={["100vw", null, null, "70vw"]}
+        display="flex"
         justifyContent="center"
         flexDirection="column"
+
       >
         <Nav />
 
@@ -95,7 +98,7 @@ function WriteArticle() {
             variant="unstyled"
             placeholder="Title"
             fontSize={["4xl", "5xl"]}
-            mt="10"
+            mt="15"
             resize="vertical"
             rows={1}
             onChange={(e) => setTitle(e.target.value)}
@@ -122,9 +125,9 @@ function WriteArticle() {
 
           <Divider my={[6, 10]} />
 
-          <Box d="flex" flexDirection="column">
+          <Box display="flex" flexDirection="column">
             <Box
-              d="flex"
+              display="flex"
               flexDirection={["column", null, "row"]}
               justifyContent="flex-start"
               alignItems={[null, null, "center"]}
@@ -133,19 +136,19 @@ function WriteArticle() {
                 Choose your article's visibility
               </Text>
 
-              <RadioGroup
+               <RadioGroup
                 onChange={setVisibility}
                 value={visibility}
                 mb={[2, 2, 0]}
               >
-                <Stack direction="row">
+                 <Stack direction="row">
                   <Radio mr="2" isChecked={true} size="lg" value="public">
                     Public
                   </Radio>
                   <Radio size="lg" value="private">
                     Private
                   </Radio>
-                </Stack>
+                </Stack> 
               </RadioGroup>
             </Box>
             <Text fontSize={["sm", "md"]} opacity="0.4" mb="2">
@@ -156,7 +159,7 @@ function WriteArticle() {
           </Box>
 
           <Box
-            d="flex"
+            display="flex"
             justifyContent="center"
             alignItems="center"
             flexDirection={["column-reverse", null, "row"]}
@@ -167,7 +170,6 @@ function WriteArticle() {
               fontSize={["md", "lg"]}
               py={8}
               isFullWidth
-              // variant="ghost"
               mr={["0", "0", "4"]}
               mt={["4", "0"]}
               as={Link}
