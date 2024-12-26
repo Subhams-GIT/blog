@@ -11,18 +11,19 @@ import {
 } from "@chakra-ui/react";
 import { FormLabel } from "@chakra-ui/form-control";
 import { FormControl } from "@chakra-ui/form-control";
-import { useToast } from "@chakra-ui/toast";
+
 // Context
 import { useAuth } from "../../contexts/AuthContext";
 
 import { Link } from "react-router-dom";
+import { toast } from "react-toastify";
 
 function ForgotPassword() {
   const { resetPassword } = useAuth();
   const [email, setEmail] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const toast = useToast();
+  
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -32,20 +33,12 @@ function ForgotPassword() {
       setLoading(true);
       await resetPassword(email);
 
-      toast({
-        title: "Check your inbox for password reset instructions",
-        status: "success",
-        duration: 5000,
-      });
+      toast.success("Check your inbox for password reset instructions")
     } catch (err) {
       console.log(err);
       setError(err.message);
 
-      toast({
-        title: "Failed to reset password",
-        status: "error",
-        duration: 5000,
-      });
+      toast.error("Failed to reset password")
     }
 
     setLoading(false);
@@ -53,22 +46,22 @@ function ForgotPassword() {
 
   return (
     <Box
-      w="100%"
-      h="100vh"
-      d="flex"
+      width="100%"
+      height="100vh"
+      display="flex"
       justifyContent="center"
       alignContent="center"
     >
       <Box
-        d="flex"
-        w={["100vw", null, null, "40vw"]}
-        h="100vh"
+        display="flex"
+        width={["100vw", null, null, "40vw"]}
+        height="100vh"
         justifyContent="center"
         alignItems="center"
         textAlign="center"
         flexDirection="column"
       >
-        <Box w="90%" maxW="400px" boxShadow="lg" px={6} py={8} rounded="lg">
+        <Box width="90%" maxW="400px" boxShadow="lg" px={6} py={8} rounded="lg">
           <Text fontSize="2xl" fontWeight="semibold" mb={4}>
             Reset Password
           </Text>
@@ -85,7 +78,7 @@ function ForgotPassword() {
           </FormControl>
 
           <Button
-            w="100%"
+            width="100%"
             mt={4}
             py={6}
             colorScheme="blue"
@@ -110,8 +103,8 @@ function ForgotPassword() {
       </Box>
 
       <Box
-        w={["0vw", null, null, "60vw"]}
-        h="100%"
+        width={["0vw", null, null, "60vw"]}
+        height="100%"
         bgGradient="linear(to-br, blue.500, blue.400)"
         boxShadow="2xl"
       ></Box>

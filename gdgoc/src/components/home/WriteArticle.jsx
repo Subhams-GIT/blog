@@ -9,7 +9,7 @@ import { Stack } from "@chakra-ui/react";
 import { RadioGroup } from "@chakra-ui/radio";
 import { Radio } from "@chakra-ui/radio";
 import { Divider } from "@chakra-ui/layout";
-import { useToast } from "@chakra-ui/toast";
+import {toast} from 'react-toastify'
 import Nav from "../layout/Nav";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
@@ -25,16 +25,12 @@ function WriteArticle() {
   const [articleContent, setArticleContent] = useState("");
   const [loading, setLoading] = useState(false);
   const [visibility, setVisibility] = useState("public");
-  const toast = useToast();
+ 
   const history = useNavigate();
 
   const handlePost = async () => {
     if (!title || !subtitle || !articleContent) {
-      toast({
-        title: "Please fill all fields",
-        status: "error",
-        duration: 5000,
-      });
+     toast.info("Please fill all the fields");
       return;
     }
 
@@ -55,21 +51,13 @@ function WriteArticle() {
         visibility: visibility,
       });
       console.log(result)
-
-      toast({
-        title: "Article posted",
-        status: "success",
-        duration: 5000,
-      });
+      toast.success("Article posted successfully")
+      
 
       history("/");
     } catch (err) {
       console.log(err);
-      toast({
-        title: "Failed to post article",
-        status: "error",
-        duration: 5000,
-      });
+     toast.error("Failed to post article")
     }
 
     setLoading(false);

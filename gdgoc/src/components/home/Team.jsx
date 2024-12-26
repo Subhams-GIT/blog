@@ -3,27 +3,27 @@ import { Box, Heading, Text, SimpleGrid,  VStack } from '@chakra-ui/react';
 import { Image } from '@chakra-ui/react';
 const teamMembers = [
   {
-    name: 'Jane Doe',
+    name: 'Sanskar Lohani',
     position: 'CEO',
     photo: '/sanskar.jpg',
   },
   {
-    name: 'John Smith',
+    name: 'Sakshi Prasad Singh',
     position: 'CTO',
     photo: '/Sakshi.jpg',
   },
   {
-    name: 'Alice Johnson',
+    name: 'tanushree Tripathy',
     position: 'Designer',
     photo: '/lead.jpg',
   },
   {
-    name: 'Bob Brown',
+    name: 'Jay Dev ',
     position: 'Developer',
     photo: '/jd.jpg',
   },
   {
-    name: 'Bob Brown',
+    name: 'manish kumar jha',
     position: 'Developer',
     photo: '/manish.JPG',
   },

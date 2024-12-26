@@ -8,7 +8,7 @@ import {
 import { Select } from "@chakra-ui/select";
 import { Divider } from "@chakra-ui/layout";
 import { StarIcon, DeleteIcon, EditIcon, LockIcon } from "@chakra-ui/icons";
-import { useToast } from "@chakra-ui/toast";
+import { toast } from "react-toastify";
 import Nav from "../layout/Nav";
 import LoadingSmall from "../layout/LoadingSmall";
 import { useFirebase } from "../../contexts/FirebaseContext";
@@ -24,7 +24,6 @@ function MyArticles() {
   const [deletingIDs, setDeletingIDs] = useState([]);
   const [error, setError] = useState(null);
 
-  const toast = useToast();
 
   const fetchArticles = async () => {
     setLoading(true);
@@ -49,11 +48,11 @@ function MyArticles() {
     setDeletingIDs((prev) => [...prev, docID]);
     try {
       await deleteArticle(docID);
-      toast({ title: "Article deleted.", status: "success", duration: 5000 });
+     toast.success("Article deleted successfully");
       fetchArticles();
     } catch (err) {
       console.error(err);
-      toast({ title: "Failed to delete article.", status: "error", duration: 5000 });
+      toast.error("Failed to delete article");
     } finally {
       setDeletingIDs((prev) => prev.filter((id) => id !== docID));
     }

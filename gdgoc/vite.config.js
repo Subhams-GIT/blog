@@ -13,4 +13,7 @@ export default defineConfig({
     target: 'esnext',
     polyfillDynamicImport: false,
   },
+  optimizeDeps: {
+    include: ["@chakra-ui/react", "@emotion/react", "@emotion/styled", "framer-motion"],
+  },
 });

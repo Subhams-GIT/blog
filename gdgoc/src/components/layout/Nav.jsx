@@ -8,18 +8,19 @@ import {
   Button,
 } from "@chakra-ui/react";
 import { Menu,MenuButton,MenuList, MenuItem, MenuGroup, MenuDivider } from "@chakra-ui/menu";
-import { HamburgerIcon, ChevronDownIcon } from "@chakra-ui/icons";
-import { useToast } from "@chakra-ui/toast";
+import { HamburgerIcon,ArrowDownIcon } from "@chakra-ui/icons";
+import { toast } from "react-toastify";
 import ToggleTheme from "../../theme/ToggleTheme";
 import { useAuth } from "../../contexts/AuthContext";
 import { useNavigate, Link } from "react-router-dom";
+import { useColorMode } from "@chakra-ui/color-mode";
 
 function Nav() {
   const [width, setWidth] = useState(window.innerWidth);
-  const toast = useToast();
+  
   const navigate = useNavigate();
   const { currentUser, logout } = useAuth();
-
+  const { colorMode, toggleColorMode } = useColorMode();
   
   useEffect(() => {
     const handleResize = () => setWidth(window.innerWidth);
@@ -33,31 +34,19 @@ function Nav() {
   const handleLogout = async () => {
     try {
       await logout();
-      toast({
-        title: "Logged out successfully",
-        status: "success",
-        duration: 5000,
-        isClosable: true,
-      });
+      toast.success("Logged out successfully");
       navigate("/");
     } catch (error) {
-      toast({
-        title: "Failed to logout",
-        description: error.message,
-        status: "error",
-        duration: 5000,
-        isClosable: true,
-      });
+     toast.error("Failed to logout");
     }
   };
 
-  // Debugging: Safe logging of currentUser
-  console.log(currentUser?.displayName || "No user logged in");
+
 
   return (
-    <Box py="10" px={["6", "10"]} w="100%">
-      <Flex justify="center">
-        <Text as={Link} to="/" fontSize={["3xl", "4xl"]} fontWeight="semibold">
+    <Box py="5" px={["6", "10"]} width="100%">
+      <Flex justify="center" align="center">
+        <Text as={Link} to="/" fontSize={["2xl", "3xl"]} fontWeight="bold">
           Medium
         </Text>
         <Spacer />
@@ -66,7 +55,7 @@ function Nav() {
           {currentUser ? (
             <Menu>
               {width > 768 ? (
-                <MenuButton as={Button} rightIcon={<ChevronDownIcon />}>
+                <MenuButton as={Button} rightIcon={<ArrowDownIcon />}>
                   My profile
                 </MenuButton>
               ) : (
@@ -74,10 +63,13 @@ function Nav() {
                   as={IconButton}
                   aria-label="Options"
                   icon={<HamburgerIcon />}
+                  variant="outline"
+                  background={"black"}
+                  textColor={"white"}
                 />
               )}
               <MenuList>
-                <MenuGroup >
+                <MenuGroup>
                   <MenuItem as={Link} to="/write">
                     Write article
                   </MenuItem>
@@ -86,9 +78,7 @@ function Nav() {
                   </MenuItem>
                 </MenuGroup>
                 <MenuDivider />
-                <MenuGroup
-                  title={currentUser?.displayName || "Guest User"}
-                >
+                <MenuGroup title={currentUser?.displayName || "Guest User"}>
                   <MenuItem onClick={handleLogout}>Logout</MenuItem>
                 </MenuGroup>
               </MenuList>

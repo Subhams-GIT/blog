@@ -9,7 +9,7 @@ import {
 import { RadioGroup } from "@chakra-ui/radio";
 import { Radio } from "@chakra-ui/radio";
 import { Divider } from "@chakra-ui/layout";
-import { useToast } from "@chakra-ui/toast";
+import { toast } from "react-toastify";
 import Nav from "../layout/Nav";
 import { Link, useNavigate, useParams } from "react-router-dom";
 
@@ -30,7 +30,6 @@ function EditArticle() {
   const [btnLoading, setBtnLoading] = useState(false);
   const [docId, setDocId] = useState("");
   const [visibility, setVisibility] = useState("");
-  const toast = useToast();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -46,11 +45,7 @@ function EditArticle() {
         setVisibility(articleData.visibility);
       } catch (err) {
         console.error(err);
-        toast({
-          title: "The article you are looking for was not found",
-          status: "error",
-          duration: 5000,
-        });
+        toast.info("Article not found");
       } finally {
         setLoading(false);
       }
@@ -61,11 +56,7 @@ function EditArticle() {
 
   const handleEdit = async () => {
     if (!title || !subtitle || !articleContent) {
-      toast({
-        title: "Please fill all fields",
-        status: "error",
-        duration: 5000,
-      });
+     toast.info("Please fill all the fields");
       return;
     }
 
@@ -74,19 +65,11 @@ function EditArticle() {
     try {
       setBtnLoading(true);
       await editArticle(docId, data);
-      toast({
-        title: "Article updated",
-        status: "success",
-        duration: 5000,
-      });
+      toast.success("Article updated successfully");
       navigate(`/article/${articleID}`);
     } catch (err) {
       console.error(err);
-      toast({
-        title: "Failed to update article",
-        status: "error",
-        duration: 5000,
-      });
+     toast.error("Failed to update article");
     } finally {
       setBtnLoading(false);
     }

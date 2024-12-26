@@ -4,18 +4,14 @@ import {
   Text,
   Spacer,
   Button,
-  Spinner,
 } from "@chakra-ui/react";
-import { useToast } from "@chakra-ui/toast";
 import { Divider } from "@chakra-ui/layout";
 import { StarIcon, LinkIcon } from "@chakra-ui/icons";
 import Nav from "../layout/Nav";
 import LoadingSmall from "../layout/LoadingSmall";
-
 import { useFirebase } from "../../contexts/FirebaseContext";
-
 import Comments from "./Comments";
-
+import {toast} from "react-toastify";
 function ViewArticle() {
   const articleIDFromURL = window.location.href.split("/").pop();
   const { getSpecificArticle, giveAStar } = useFirebase();
@@ -23,29 +19,33 @@ function ViewArticle() {
   const [article, setArticle] = useState([]);
   const [loading, setLoading] = useState(false);
   const [starBtnLoading, setStarBtnLoading] = useState(false);
-
-  const toast = useToast();
   const [docId, setDocId] = useState("");
 
   const fetchArticle = async () => {
     try {
       setLoading(true);
       const data = await getSpecificArticle(articleIDFromURL);
-      setArticle(data.docs.map((el) => el.data()));
-      setDocId(data.docs.map((el) => el.id));
+      if (data.docs.length > 0) {
+        setArticle(data.docs.map((el) => el.data()));
+        setDocId(data.docs.map((el) => el.id));
+      } else {
+        throw new Error("Article not found");
+      }
     } catch (err) {
-      console.log(err);
+      console.error(err);
       toast({
         title: "The article you are looking for was not found",
         status: "error",
         duration: 5000,
       });
+    } finally {
+      setLoading(false);
     }
-
-    setLoading(false);
   };
 
-  useEffect(fetchArticle, []);
+  useEffect(() => {
+    fetchArticle();
+  }, []);
 
   const handleGiveAStar = async () => {
     try {
@@ -53,18 +53,20 @@ function ViewArticle() {
       await giveAStar(docId[0]);
       fetchArticle();
     } catch (err) {
-      console.log(err);
+      console.error(err);
+    } finally {
+      setStarBtnLoading(false);
     }
-    setStarBtnLoading(false);
   };
 
   const handleShareArticle = () => {
     navigator.clipboard.writeText(window.location.href);
-    toast({
-      title: "Article link copied to clipboard",
-      status: "success",
-      duration: 5000,
-    });
+    // toast({
+    //   title: "Article link copied to clipboard",
+    //   status: "success",
+    //   duration: 5000,
+    // });
+    toast.success("Article link copied to clipboard") 
   };
 
   const getDate = (timestamp) => {
@@ -73,7 +75,7 @@ function ViewArticle() {
   };
 
   return (
-    <Box d="flex" justifyContent="center" alignItems="center">
+    <Box display="flex" justifyContent="center" alignItems="center">
       <Box
         width={["100vw", null, null, "70vw"]}
         display="flex"
@@ -85,8 +87,8 @@ function ViewArticle() {
           <LoadingSmall />
         ) : (
           <>
-            {article.map((el) => (
-              <Box px={["6", "10"]}>
+            {article.map((el, index) => (
+              <Box key={index} px={["6", "10"]}>
                 <Text fontSize={["4xl", "5xl"]}>{el.content.title}</Text>
                 <Text fontSize={["xl", "2xl"]} opacity="0.8">
                   {el.content.subtitle}
@@ -100,9 +102,7 @@ function ViewArticle() {
                     {getDate(el.when).slice(4, 21)}
                   </Text>
                   <Spacer />
-                  {el.visibility === "private" ? (
-                    ""
-                  ) : (
+                  {el.visibility === "private" ? null : (
                     <Box
                       display="flex"
                       flexDirection="row"
@@ -136,12 +136,9 @@ function ViewArticle() {
 
                 <Divider my="6" />
 
-                {el.visibility === "private" ? (
-                  ""
-                ) : (
+                {el.visibility === "private" ? null : (
                   <>
                     <Box display="flex">
-                      {/* <Spacer d={["none", null, "block"]} /> */}
                       <Button
                         rightIcon={<StarIcon />}
                         colorScheme="yellow"

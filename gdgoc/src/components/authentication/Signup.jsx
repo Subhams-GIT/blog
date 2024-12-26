@@ -5,35 +5,26 @@ import {
   Text,
   Link as ChakraLink,
 } from "@chakra-ui/react";
-import { Toast } from "@chakra-ui/react";
-import { useToast } from "@chakra-ui/toast";
+
+import { toast } from "react-toastify";
 import { useAuth } from "../../contexts/AuthContext";
 import { Link, useNavigate } from "react-router-dom";
 
 function Signup() {
   const { googleSignIn, githubSignIn } = useAuth();
   const [loading, setLoading] = useState(false);
-  const toast = useToast();
+  
   const history = useNavigate();
 
   const handleGoogleSignIn = async () => {
     try {
       setLoading(true);
       await googleSignIn();
-      toast({
-        title: "Account successfully created",
-        status: "success",
-        duration: 5000,
-      });
+      toast.success("logged in")
       history("/");
     } catch (err) {
       console.log(err);
-      toast({
-        title: "Failed to sign up",
-        description: err.message,
-        status: "error",
-        duration: 5000,
-      });
+      toast.error("Failed to login")
     }
     setLoading(false);
   };
@@ -42,20 +33,12 @@ function Signup() {
     try {
       setLoading(true);
       await githubSignIn();
-      toast({
-        title: "Account successfully created",
-        status: "success",
-        duration: 5000,
-      });
+     toast.success("logged in")
       history("/");
     } catch (err) {
+      toast.error("Failed to login")
       console.log(err);
-      toast({
-        title: "Failed to sign up",
-        description: err.message,
-        status: "error",
-        duration: 5000,
-      });
+     
     }
     setLoading(false);
   };

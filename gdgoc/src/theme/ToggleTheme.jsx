@@ -7,9 +7,11 @@ function ToggleTheme() {
     <header>
       <IconButton
         onClick={toggleColorMode}
-        icon={colorMode === "light" ? <MoonIcon /> : <SunIcon />}
+        
         variant={[null]}
-      />
+      >
+        {colorMode === "light" ? <MoonIcon /> : <SunIcon />}
+      </IconButton>
     </header>
   );
 }

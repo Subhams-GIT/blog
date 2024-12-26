@@ -4,32 +4,26 @@ import {
   Text,
   IconButton,
   Spacer,
-  Button,
   Input,
 } from "@chakra-ui/react";
 import { Divider } from "@chakra-ui/layout";
-import { useToast } from "@chakra-ui/toast";
-import { StarIcon, AddIcon, DeleteIcon } from "@chakra-ui/icons";
-import Nav from "../layout/Nav";
-import LoadingSmall from "../layout/LoadingSmall";
-
+import { toast } from "react-toastify";
+import { SmallAddIcon, DeleteIcon } from "@chakra-ui/icons";
 import { useFirebase } from "../../contexts/FirebaseContext";
 import { useAuth } from "../../contexts/AuthContext";
+import LoadingSmall from "../layout/LoadingSmall";
 
 const Comments = () => {
   const articleIDFromURL = window.location.href.split("/").pop();
-  const { postComment, getComments, getSpecificArticle, deleteComment } =
-    useFirebase();
+  const { postComment, getComments, getSpecificArticle, deleteComment } = useFirebase();
   const { currentUser } = useAuth();
   const [loading, setLoading] = useState(false);
   const [commentBtnLoading, setCommentBtnLoading] = useState(false);
-
   const [comment, setComment] = useState("");
   const [comments, setComments] = useState([]);
   const [article, setArticle] = useState([]);
   const [commentsDocIDs, setCommentsDocIds] = useState([]);
 
-  const toast = useToast();
 
   const fetchArticle = async () => {
     try {
@@ -37,10 +31,10 @@ const Comments = () => {
       const data = await getSpecificArticle(articleIDFromURL);
       setArticle(data.docs.map((el) => el.data()));
     } catch (err) {
-      console.log(err);
+      console.error(err);
+    } finally {
+      setLoading(false);
     }
-
-    setLoading(false);
   };
 
   const fetchComments = async () => {
@@ -50,19 +44,17 @@ const Comments = () => {
       setComments(data.docs.map((el) => el.data()));
       setCommentsDocIds(data.docs.map((el) => el.id));
     } catch (err) {
-      console.log(err);
-      toast({
-        title: "Couldn't fetch comments at the moment",
-        status: "error",
-        duration: 5000,
-      });
+      console.error(err);
+      toast.error("Couldn't fetch comments at the moment")
+    } finally {
+      setLoading(false);
     }
-
-    setLoading(false);
   };
 
-  useEffect(fetchComments, []);
-  useEffect(fetchArticle, []);
+  useEffect(() => {
+    fetchComments();
+    fetchArticle();
+  }, []);
 
   const handlePostComment = async () => {
     if (!comment) {
@@ -81,7 +73,7 @@ const Comments = () => {
         authorID: currentUser.uid,
         when: Date.now(),
         authorEmail: currentUser.email,
-        autherUsername: `@${currentUser.email.split("@")[0]}`,
+        authorUsername: `@${currentUser.email.split("@")[0]}`,
       };
 
       setCommentBtnLoading(true);
@@ -94,15 +86,15 @@ const Comments = () => {
       setComment("");
       fetchComments();
     } catch (err) {
-      console.log(err);
+      console.error(err);
       toast({
         title: "Failed to comment",
         status: "error",
         duration: 5000,
       });
+    } finally {
+      setCommentBtnLoading(false);
     }
-
-    setCommentBtnLoading(false);
   };
 
   const handleDeleteComment = async (docID) => {
@@ -115,7 +107,7 @@ const Comments = () => {
       });
       fetchComments();
     } catch (err) {
-      console.log(err);
+      console.error(err);
       toast({
         title: "Failed to delete comment",
         status: "error",
@@ -134,7 +126,7 @@ const Comments = () => {
   ) : (
     <Box mt="10">
       <Text fontSize={["2xl", "3xl"]}>Comments</Text>
-      <Box d="flex" mt="6" mb="6">
+      <Box display="flex" mt="6" mb="6">
         <Input
           variant="unstyled"
           placeholder="Write your comment here"
@@ -144,14 +136,14 @@ const Comments = () => {
           mr="2"
         />
         <IconButton
-          icon={<AddIcon />}
           onClick={handlePostComment}
           isLoading={commentBtnLoading}
-        />
+          aria-label="Post Comment"
+        ><SmallAddIcon/></IconButton>
       </Box>
 
       {comments.map((el, i) => (
-        <Box mt="6">
+        <Box key={i} mt="6">
           <Box d="flex" mb="1" justifyContent="center" alignItems="center">
             <Text color="blue.500" fontSize={["md", "lg"]} mr="2">
               {el.authorUsername}
@@ -168,13 +160,10 @@ const Comments = () => {
                 icon={<DeleteIcon />}
                 variant="ghost"
                 colorScheme="red"
-                onClick={() => {
-                  handleDeleteComment(commentsDocIDs[i]);
-                }}
+                onClick={() => handleDeleteComment(commentsDocIDs[i])}
+                aria-label="Delete Comment"
               />
-            ) : (
-              ""
-            )}
+            ) : null}
           </Box>
           <Text fontSize={["lg", "xl"]} mr="2">
             {el.comment}
